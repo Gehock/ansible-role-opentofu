@@ -1,0 +1,12 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+    - name: Check that Tofu is installed
+      ansible.builtin.assert:
+        that:
+          - '"tofu" in ansible_facts.packages'

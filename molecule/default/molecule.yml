@@ -1,0 +1,7 @@
+---
+driver:
+  name: podman
+platforms:
+  - name: instance
+    image: docker.io/library/python:3-bookworm
+    pre_build_image: true
