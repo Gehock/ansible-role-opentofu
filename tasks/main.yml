@@ -1,2 +1,47 @@
 ---
 # tasks file for ansible-role-opentofu
+
+- name: Install apt tooling
+  ansible.builtin.apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+- name: Setup the OpenTofu repository
+  block:
+    - name: Create keyring directory
+      ansible.builtin.file:
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+        path: "/etc/apt/keyrings"
+    - name: Get OpenTofu GPG key
+      ansible.builtin.get_url:
+        url: https://get.opentofu.org/opentofu.gpg
+        dest: /etc/apt/keyrings/opentofu.gpg
+        mode: "0644"
+    - name: Get OpenTofu repo GPG key
+      ansible.builtin.get_url:
+        url: https://packages.opentofu.org/opentofu/tofu/gpgkey
+        dest: /etc/apt/keyrings/opentofu-repo.asc
+        mode: "0644"
+    - name: Add OpenTofu repo
+      ansible.builtin.apt_repository:
+        repo: >
+          deb
+          [signed-by=/etc/apt/keyrings/opentofu.gpg,/etc/apt/keyrings/opentofu-repo.asc]
+          https://packages.opentofu.org/opentofu/tofu/any/ any main
+        state: present
+    - name: Add OpenTofu src repo
+      ansible.builtin.apt_repository:
+        repo: >
+          deb-src
+          [signed-by=/etc/apt/keyrings/opentofu.gpg,/etc/apt/keyrings/opentofu-repo.asc]
+          https://packages.opentofu.org/opentofu/tofu/any/ any main
+        state: present
+- name: Install package
+  ansible.builtin.package:
+    name: tofu
+    state: present
